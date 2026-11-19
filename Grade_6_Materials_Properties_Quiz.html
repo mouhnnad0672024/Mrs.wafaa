@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Grade 6 Science Quiz – Materials: Properties and Changes</title>
+<style>
+:root{--navy:#183153;--blue:#2463a6;--pale:#eef5fc;--green:#18794e;--red:#b42318;--ink:#243247}
+*{box-sizing:border-box}
+body{margin:0;background:#f3f6fa;color:var(--ink);font-family:Arial,Helvetica,sans-serif;line-height:1.5}
+.wrap{max-width:900px;margin:28px auto;padding:0 16px}
+header{background:linear-gradient(135deg,#183153,#2866a6);color:white;padding:28px;border-radius:18px;margin-bottom:20px}
+header h1{margin:0 0 8px;font-size:clamp(23px,4vw,32px)}
+header p{margin:4px 0;color:#e7f0fa}
+.meta{display:flex;gap:10px;flex-wrap:wrap;margin-top:15px}
+.pill{background:#ffffff20;border:1px solid #ffffff50;border-radius:30px;padding:5px 12px;font-size:13px}
+.progressbox,.question,.result{background:white;border-radius:15px;padding:20px;margin:15px 0;box-shadow:0 3px 14px #1c355010}
+.progressline{height:9px;background:#e5ebf2;border-radius:20px;overflow:hidden;margin-top:8px}
+#progress{height:100%;width:0;background:#3b82c4;transition:width .25s}
+.qtop{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:8px}
+.qnum{font-weight:bold;color:var(--blue)}
+.tag{font-size:12px;padding:4px 9px;border-radius:20px;background:#edf3fa;color:#315477}
+.question h3{font-size:17px;margin:8px 0 14px}
+.options{display:grid;gap:9px}
+.option{display:flex;gap:10px;align-items:flex-start;padding:11px 13px;border:1.5px solid #d8e0e9;border-radius:10px;cursor:pointer;transition:.15s}
+.option:hover{border-color:#6c9ac8;background:#f8fbff}
+.option input{margin-top:4px;accent-color:var(--blue)}
+.option.selected{border-color:var(--blue);background:var(--pale)}
+.option.correct{border-color:#2b9a68;background:#edf9f2}
+.option.wrong{border-color:#d95b52;background:#fff1f0}
+.feedback{display:none;margin-top:12px;padding:10px 12px;border-radius:9px;background:#f2f5f8;font-size:14px}
+.feedback.show{display:block}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin:20px 0}
+button{border:0;border-radius:10px;padding:12px 19px;font-weight:bold;font-size:15px;cursor:pointer}
+#submit{background:var(--blue);color:white}
+#reset{background:#e5ebf2;color:#25364a}
+button:disabled{opacity:.55;cursor:not-allowed}
+.result{display:none;text-align:center;padding:26px}
+.score{font-size:42px;font-weight:bold;color:var(--blue)}
+#summary{font-size:16px}
+.small{font-size:13px;color:#64748b}
+footer{text-align:center;color:#64748b;font-size:12px;padding:15px}
+@media(max-width:560px){header{padding:21px}.question,.progressbox{padding:15px}.qtop{align-items:flex-start}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+<h1>Science Challenge: Materials</h1>
+<p><strong>Grade 6 · Cambridge Primary</strong></p>
+<p>Topics 2.1–2.3: Properties of substances, thermal and electrical conductors, and reversible changes.</p>
+<div class="meta"><span class="pill">20 multiple-choice questions</span><span class="pill">Knowledge · Application · Reasoning</span><span class="pill">1 mark each</span></div>
+</header>
+<div class="progressbox">
+<div><strong>Your progress</strong> <span id="progressText" class="small">0 of 20 answered</span></div>
+<div class="progressline"><div id="progress"></div></div>
+</div>
+<main id="quiz"></main>
+<div class="actions">
+<button id="submit">Submit answers</button>
+<button id="reset" type="button">Try again</button>
+</div>
+<section class="result" id="result" aria-live="polite">
+<h2>Quiz results</h2><div class="score" id="score"></div><p id="summary"></p>
+<p class="small">Review the explanations under each question to learn from your answers.</p>
+</section>
+<footer>Read each question carefully. Choose the best answer from A, B, C or D.</footer>
+</div>
+<script>
+const questions = [
+{type:"Knowledge",q:"What is the melting point of a substance?",a:["The temperature at which a solid changes into a liquid","The temperature at which a liquid changes into a gas","The temperature at which a gas becomes a liquid","The temperature at which a liquid freezes and boils"],c:0,e:"The melting point is the temperature at which a solid becomes a liquid."},
+{type:"Knowledge",q:"At what temperature does pure water boil?",a:["0 °C","50 °C","100 °C","118 °C"],c:2,e:"The text gives the boiling point of pure water as 100 °C."},
+{type:"Knowledge",q:"Which statement best describes evaporation?",a:["Particles throughout a liquid change into a gas","Only particles at the surface of a liquid change into a gas","A solid changes directly into a gas","A liquid changes into a solid"],c:1,e:"Evaporation happens at the surface of a liquid. It can occur at any temperature."},
+{type:"Application",q:"A puddle disappears on a warm day, even though it is not boiling. Which process explains this?",a:["Melting","Freezing","Boiling","Evaporation"],c:3,e:"Evaporation can happen at any temperature, so water can slowly leave a puddle without boiling."},
+{type:"Reasoning",q:"A student heats two different pure liquids. Liquid X boils at 100 °C and liquid Y boils at 118 °C. What can the student conclude?",a:["X and Y must be the same substance","Y has a higher boiling point than X","X has a higher boiling point than Y","Boiling point does not help identify substances"],c:1,e:"Boiling point is a property of a substance. Since 118 °C is higher than 100 °C, Y has the higher boiling point."},
+{type:"Knowledge",q:"Which two properties do all matter, including gases, have?",a:["Colour and shape","Mass and the ability to take up space","A fixed shape and fixed volume","Transparency and smell"],c:1,e:"The text states that all matter takes up space and has mass."},
+{type:"Application",q:"In a balloon investigation, one of two balanced balloons is released and becomes smaller. What is the best evidence that the gas has mass?",a:["The balloon changes colour","The released balloon becomes smaller","The balance tips towards the balloon that still contains air","The string becomes longer"],c:2,e:"The balance tips because the balloon containing air is heavier. This shows that the gas has mass."},
+{type:"Knowledge",q:"What is conduction?",a:["The transfer of energy by heating from one object to another","The movement of a liquid from place to place","The change of a solid into a liquid","The spreading of a gas through a room"],c:0,e:"Conduction is the transfer of heat energy from one object to another."},
+{type:"Application",q:"Why are cooking pots usually made from metal?",a:["Metal is a poor conductor of heat","Metal dissolves in hot food","Metal is a good conductor of heat","Metal always stays cool"],c:2,e:"Metals conduct heat well, allowing heat to pass from the cooker to the food."},
+{type:"Application",q:"Why are the handles of many cooking pots made from plastic?",a:["Plastic is a good electrical conductor","Plastic is not a good conductor of heat","Plastic has a very high boiling point","Plastic makes the food heat faster"],c:1,e:"Plastic is a poor thermal conductor, so less heat travels to the handle."},
+{type:"Reasoning",q:"In a bead investigation, the bead on a metal spoon falls off before the bead on a plastic spoon. What does this suggest?",a:["Plastic conducts heat better than metal","Both materials conduct heat equally","Metal does not transfer heat","Metal conducts heat better than plastic"],c:3,e:"Heat travels through the metal spoon more quickly, melting the petroleum jelly sooner."},
+{type:"Knowledge",q:"Which of these is a good conductor of heat according to the text?",a:["Silver","Plastic","Glass","Polystyrene foam"],c:0,e:"The text identifies metals as good thermal conductors and silver as the best conductor of heat."},
+{type:"Application",q:"A student tests materials in a simple circuit. The lamp shines brightly when a material is connected. What does this show?",a:["The material is a thermal insulator","The material is an electrical conductor","The material has melted","The material is a solvent"],c:1,e:"A bright lamp shows that electric current passes through the material well."},
+{type:"Reasoning",q:"A student tests sugar in a circuit and the lamp does not shine. Which conclusion is supported by this test?",a:["Sugar is the best electrical conductor tested","Sugar must be a metal","Sugar did not conduct electricity in this test","Sugar conducts electricity better than copper"],c:2,e:"The lamp staying off indicates that the sugar did not allow enough current to flow in this test."},
+{type:"Knowledge",q:"What is a reversible change?",a:["A change that always produces a new substance","A change that cannot be undone","A change that only happens when heating","A change in which the substance can be changed back"],c:3,e:"A reversible change can be undone so the substance returns to its earlier state."},
+{type:"Application",q:"Ice melts into water. The water is then placed in a freezer and becomes ice again. What kind of change is this?",a:["A reversible physical change","An irreversible chemical change","Burning","A change that makes a new substance"],c:0,e:"The change can be reversed by cooling, and the substance remains water."},
+{type:"Reasoning",q:"Why is burning a match an irreversible change?",a:["The match only changes shape","The wood changes into a different substance","The match becomes colder","The match can be frozen back into wood"],c:1,e:"Burning changes the wood into a new substance, including black carbon, so it cannot be changed back."},
+{type:"Knowledge",q:"In a salt-water solution, what is the solute?",a:["The water","The container","The salt","The whole solution"],c:2,e:"The solute is the substance that dissolves. In salt water, salt is the solute."},
+{type:"Application",q:"A student stirs sugar into a cup of water. What is the main effect of stirring?",a:["It increases the rate at which the sugar dissolves","It changes sugar into water","It makes the water freeze","It turns the solution into a gas"],c:0,e:"Stirring helps solute particles spread between solvent particles more quickly, increasing the rate of dissolving."},
+{type:"Reasoning",q:"A student compares how quickly sugar dissolves in hot and cold water. Which plan makes this a fair test?",a:["Use different amounts of sugar and water","Stir only the hot-water jar","Use the same amount of water and sugar, and stir both in the same way","Use a large jar for hot water and a tiny jar for cold water"],c:2,e:"A fair test changes only the water temperature while keeping other conditions, such as amounts and stirring, the same."}
+];
+
+let selected = Array(questions.length).fill(null);
+let submitted = false;
+const quiz = document.getElementById('quiz');
+
+function shuffleOptions(q){
+  const arr=q.a.map((label,i)=>({label,correct:i===q.c}));
+  for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]];}
+  return arr;
+}
+const rendered = questions.map(q=>shuffleOptions(q));
+function render(){
+  quiz.innerHTML='';
+  questions.forEach((q,i)=>{
+    const card=document.createElement('section');card.className='question';card.id='q'+i;
+    const top=document.createElement('div');top.className='qtop';
+    top.innerHTML=`<span class="qnum">Question ${i+1} of ${questions.length}</span><span class="tag">${q.type}</span>`;
+    const title=document.createElement('h3');title.textContent=q.q;card.append(top,title);
+    const opts=document.createElement('div');opts.className='options';
+    rendered[i].forEach((o,j)=>{
+      const label=document.createElement('label');label.className='option';label.dataset.index=j;
+      const radio=document.createElement('input');radio.type='radio';radio.name='q'+i;radio.value=j;radio.checked=selected[i]===j;radio.disabled=submitted;
+      radio.addEventListener('change',()=>{selected[i]=j;updateProgress();});
+      const letter=document.createElement('strong');letter.textContent=String.fromCharCode(65+j)+'.';
+      const span=document.createElement('span');span.textContent=o.label;
+      label.append(radio,letter,span);opts.append(label);
+    });
+    card.append(opts);
+    const fb=document.createElement('div');fb.className='feedback';fb.id='fb'+i;fb.textContent=q.e;card.append(fb);
+    quiz.append(card);
+  });
+  updateProgress();
+  if(submitted) showReview();
+}
+function updateProgress(){
+ const n=selected.filter(v=>v!==null).length;
+ document.getElementById('progressText').textContent=`${n} of ${questions.length} answered`;
+ document.getElementById('progress').style.width=(n/questions.length*100)+'%';
+}
+function showReview(){
+ let score=0;
+ questions.forEach((q,i)=>{
+  const card=document.getElementById('q'+i);
+  const labels=card.querySelectorAll('.option');
+  labels.forEach((lab,j)=>{
+   const correct=rendered[i][j].correct;
+   if(correct)lab.classList.add('correct');
+   if(selected[i]===j&&!correct)lab.classList.add('wrong');
+   lab.querySelector('input').disabled=true;
+  });
+  if(selected[i]!==null&&rendered[i][selected[i]].correct)score++;
+  document.getElementById('fb'+i).classList.add('show');
+ });
+ document.getElementById('score').textContent=`${score} / ${questions.length}`;
+ const pct=score/questions.length*100;
+ let message=pct>=85?'Excellent work! You have a strong understanding of these topics.':pct>=65?'Good effort! Review the explanations to strengthen your understanding.':'Keep practising. Read the feedback and try the quiz again.';
+ document.getElementById('summary').textContent=`You answered ${selected.filter(v=>v!==null).length} questions. ${message}`;
+ document.getElementById('result').style.display='block';
+ document.getElementById('submit').disabled=true;
+ document.getElementById('result').scrollIntoView({behavior:'smooth',block:'center'});
+}
+document.getElementById('submit').addEventListener('click',()=>{
+ if(submitted)return;
+ const unanswered=selected.filter(v=>v===null).length;
+ if(unanswered>0&&!confirm(`You have ${unanswered} unanswered question(s). Submit anyway?`))return;
+ submitted=true;showReview();
+});
+document.getElementById('reset').addEventListener('click',()=>{
+ if(!confirm('Clear all answers and start again?'))return;
+ selected=Array(questions.length).fill(null);submitted=false;
+ for(let i=0;i<questions.length;i++)rendered[i]=shuffleOptions(questions[i]);
+ document.getElementById('result').style.display='none';
+ document.getElementById('submit').disabled=false;
+ render();window.scrollTo({top:0,behavior:'smooth'});
+});
+render();
+</script>
+</body>
+</html>
